@@ -43,7 +43,7 @@ I will be more than happy to accept a pull request with an installation guide fo
 * Uploading and handling of images in the control panel.
 * Support for tags on the front-site.
 * Dockerfile. Everyone loves Docker, or so i heard. ;)
-* Unittests? At least some test suite that tries out several functions. For now i thoroughly tested everything manually but if this project gets better it's better to have some form of automated tests.
+* Unittests? At least some test suite that tries out several functions. For now i thoroughly tested everything manually but if this project gets bigger it's better to have some form of automated tests.
 
 ---
 ## **Future Ideas:**
