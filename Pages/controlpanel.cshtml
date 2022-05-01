@@ -1,0 +1,93 @@
+@page
+@using LionsBlog
+@{
+    /*
+        controlpanel.cshtml
+        Admin settings shenanigans. Shows all posts and lets one see a list of all users in the system.
+    */
+}
+@{
+    Layout = "_Layout";
+}
+
+@{
+    UserStruct user;
+    var users = new Users();
+    var username = "";
+    if(!String.IsNullOrEmpty(Request.Cookies["lionsblog_token"]))
+    {
+        username = users.GetUsernameByTokenFromHttpRequest(Request);
+        if(String.IsNullOrEmpty(username))
+        {
+            Response.Redirect("logoff");
+            return;
+        }
+        user = users.GetUser(username);
+    }
+    else
+    {
+        Response.Redirect("index");
+        return;
+    }
+    ViewData["footer"] = $"<a href=\"/logoff\">Logoff</a> - Logged in as {username} - <a href=\"/controlpanel\">CP</a> - <a href=\"/editpost\">New Post</a>";
+}
+
+<h2>Post list</h2>
+<table style="overflow-y:scroll; height:400px;">
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Flags</th>
+        <th>Options</th>
+    </tr>
+@{
+    var posts = new Posts();
+    var postlist = posts.GetPosts(0,posts.GetPostCount(false),false);
+
+    foreach (var singlepost in postlist)
+    {
+        var activeflag = singlepost.IsActive==1?"A":"D";
+
+        <tr>
+            <td>@singlepost.Id</td>
+            <td>@singlepost.Topic</td>
+            <td>@activeflag</td>
+            <td>
+                <a href="/editpost/@singlepost.Id" target=”_blank”>E</a>
+                <a href="/show/@singlepost.Id" target=”_blank”>S</a>
+            </td>
+        </tr>
+    }
+
+}
+</table>
+<hr>
+<h2>Users</h2>
+<a href="/edituser/">New User</a><br>
+<table style="overflow-y:scroll; height:400px;">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Screenname</th>
+        <th>eMail</th>
+        <th>Flags</th>
+        <th>Options</th>
+    </tr>
+@{
+    var userlist = users.GetUsers();
+    foreach (var singleuser in userlist)
+    {
+        var enabledflag = singleuser.enabled==1?"E":"D";
+        <tr>
+            <td>@singleuser.id</td>
+            <td>@singleuser.name</td>
+            <td>@singleuser.screenname</td>
+            <td>@singleuser.email</td>
+            <td>@enabledflag</td>
+            <td>
+                <a href="/edituser/@singleuser.id" target="_blank">E</a>
+            </td>
+        </tr>
+    }
+}
+</table>

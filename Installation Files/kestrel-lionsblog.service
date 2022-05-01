@@ -1,0 +1,16 @@
+[Unit]
+Description=LionsBlog webservice
+
+[Service]
+WorkingDirectory=/the/place/you/put/lionsblog/
+ExecStart=/the/place/you/put/lionsblog/lionsblog
+Restart=always
+# Restart service after 10 seconds if the dotnet service crashes:
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=LionsBlog
+User=TheUserThatPlaceOwns
+Environment=ASPNETCORE_ENVIRONMENT=Production
+
+[Install]
+WantedBy=multi-user.target

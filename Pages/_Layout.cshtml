@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>LionsBlog</title>
+        <link rel="stylesheet" href="/default.css"/>
+    </head>
+
+    <body>
+        <h1>LionsBlog</h1>
+        @RenderBody()
+        <hr>
+        <small>
+            The time on the server is @DateTime.Now -
+            @Html.Raw(@ViewData["footer"])
+        </small>
+    </body>
+
+</html>

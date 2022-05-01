@@ -1,0 +1,44 @@
+@page "{image=0}"
+@using LionsBlog
+@using Microsoft.AspNetCore.StaticFiles
+
+@{
+    /*
+        images.cshtml
+        Retrieve a saved image
+
+        image: The filename of the image
+    */
+}
+@{
+    string imagefile = RouteData.Values["image"].ToString();
+
+    if (string.IsNullOrEmpty(imagefile)
+    || imagefile == "0")
+    {
+        Response.StatusCode = 400;
+        <h1>400 - Bad Request.</h1>
+        return;
+    }
+
+    imagefile = imagefile.Replace("/", "").Replace("\\", "");
+    var imagepath = System.IO.Path.GetFullPath(System.IO.Path.Combine(ConfigurationProvider.GetConfiguration().ImageDirectory, imagefile));
+
+    if (!System.IO.File.Exists(imagepath))
+    {
+        Response.StatusCode = 404;
+        <h1>404 - Not Found.</h1>
+        return;
+    }
+
+    var contenttypeprovider = new FileExtensionContentTypeProvider();
+    var contenttype = "";
+    if(!contenttypeprovider.TryGetContentType(imagepath, out contenttype))
+    {
+        contenttype = "application/octet-stream";
+    }
+    Response.ContentType = contenttype;
+
+    await Response.SendFileAsync(imagepath);
+    return;
+}

@@ -1,0 +1,80 @@
+@page "{startid=0}"
+@using LionsBlog
+@{
+    /*
+        index.cshtml
+        Main page with a list and preview of the latest articles.
+    */
+}
+@{
+    Layout = "_Layout";
+}
+
+@{
+    string startidstring = RouteData.Values["startid"].ToString();
+    int startid;
+    ViewData["footer"] = "<a href=\"/login\">Login</a>";
+    var username = "";
+    var showEditLinks = false;
+
+    if(String.IsNullOrEmpty(startidstring) || !int.TryParse(startidstring, out startid))
+    {
+        startid = 0;
+    }
+
+    if(!String.IsNullOrEmpty(Request.Cookies["lionsblog_token"]))
+    {
+        var users = new Users();
+        username = users.GetUsernameByTokenFromHttpRequest(Request);
+        if(String.IsNullOrEmpty(username))
+        {
+            Response.Redirect("logoff");
+            return;
+        }
+        showEditLinks = true;
+        ViewData["footer"] = $"<a href=\"/logoff\">Logoff</a> - Logged in as {username} - <a href=\"/controlpanel\">CP</a> - <a href=\"/editpost\">New Post</a>";
+    }
+    var posts = new Posts();
+
+    var newestposts = posts.GetPosts(startid,ConfigurationProvider.GetConfiguration().PostsPerPage);
+
+    var i = 0;
+    var newestpostcount = newestposts.Count();
+    foreach (var post in newestposts)
+    {
+        <h2><a href="/show/@post.Id">@post.Topic</a></h2>
+        <small><center>by @post.Author on @post.Published.ToString("MMMM dd, yyyy")
+        @Html.Raw(showEditLinks?$"- <a href=\"/editpost/{post.Id}\">Edit</a>":"")
+        </center></small><br>
+
+        if(post.Post.IndexOf("###BREAK###")>0)
+        {
+            @Html.Raw(post.Post.Substring(0,post.Post.IndexOf("###BREAK###"))) // Only show the content until the BREAK Tag
+            <br><a href="/show/@post.Id">[more]</a>
+        }
+        else
+        {
+            @Html.Raw(post.Post)
+        }
+
+        if(++i < newestpostcount)
+        {
+            <hr>
+        }
+    }
+
+    var olderandnewerlinkstring = "<center>";
+    var oldershown = false;
+    if(startid+5<posts.GetPostCount())
+    {
+        olderandnewerlinkstring += $"<a href=\"/index/{startid+5}\">Older</a>";
+        oldershown = true;
+    }
+    if(startid>0)
+    {
+        var delimeter = oldershown?" - ":"";
+        olderandnewerlinkstring += $"{delimeter}<a href=\"/index/{startid-5}\">Newer</a>";
+    }
+    olderandnewerlinkstring += "</center>";
+}
+@Html.Raw(olderandnewerlinkstring)

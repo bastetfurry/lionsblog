@@ -1,0 +1,33 @@
+@page
+@using LionsBlog
+@{
+    /*
+        logoff.cshtml
+        Logs off a user, deletes their cookie from the database and the browser.
+    */
+}
+@{
+    Layout = "_Layout";
+}
+
+@{
+    var cookie = Request.Cookies["lionsblog_token"];
+    if(String.IsNullOrEmpty(cookie) || cookie == "deleted")
+    {
+        Response.Redirect("/index");
+        return;
+    }
+
+    var users = new Users();
+    users.DeleteCookie(cookie);
+    Response.HttpContext.Response.Cookies.Append(
+        "lionsblog_token",
+        "deleted",
+        new CookieOptions
+        {
+            Expires = DateTime.Now.AddDays(-1)
+        }
+    );
+    Response.Redirect("/index");
+    return;
+}

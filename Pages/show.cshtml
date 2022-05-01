@@ -1,0 +1,71 @@
+@page "{postid?}/{unused?}"
+@{
+    /*
+        show.cshtml
+        Shows an article, makes sure that articles that are not active
+        are not shown to normal viewers.
+
+        postid: The post to show, redirects to the main page when omitted
+        unused: This is for SEO shenanigans and will be ignored by the code
+    */
+}
+@using LionsBlog
+
+@{
+    Layout = "_Layout";
+}
+
+@{
+    var postidstring = RouteData.Values["postid"].ToString();
+    ViewData["footer"] = "<a href=\"/login\">Login</a>";
+    int postid;
+    var userIsLoggedIn = false;
+    var username = "";
+    if(String.IsNullOrEmpty(postidstring) || !int.TryParse(postidstring, out postid))
+    {
+        Response.Redirect("/index");
+        return;
+    }
+
+    var posts = new Posts();
+
+    var post = posts.GetSinglePost(postid);
+    if(post == null)
+    {
+        Response.Redirect("/index");
+        return;
+    }
+
+    if(!String.IsNullOrEmpty(Request.Cookies["lionsblog_token"]))
+    {
+        var users = new Users();
+        username = users.GetUsernameByTokenFromHttpRequest(Request);
+        if(String.IsNullOrEmpty(username))
+        {
+            Response.Redirect("/logoff");    // That token is void, call logoff to remove it
+            return;
+        }
+        userIsLoggedIn = true;
+        ViewData["footer"] = $"<a href=\"logout\">Logout</a> - Logged in as {username}";
+    }
+
+    if(!userIsLoggedIn && post.IsActive == 0)
+    {
+        // Only logged in people should be able to see inactive posts...
+        Response.Redirect("/index");
+        return;
+    }
+    if(post.IsActive == 0)
+    {
+        <h3 style="color: red;">Warning, this post is inactive!</h3>
+    }
+
+    var cleanedpost = post.Post.Replace("###BREAK###","");
+}
+
+<h2><a href="/show/@post.Id">@post.Topic</a></h2>
+<small><center>by @post.Author on @post.Published.ToString("MMMM dd, yyyy")
+@Html.Raw(userIsLoggedIn?$"- <a href=\"/post/{post.Id}\">Edit</a>":"")
+</center></small><br>
+@Html.Raw(cleanedpost)
+

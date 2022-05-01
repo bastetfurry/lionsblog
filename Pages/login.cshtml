@@ -1,0 +1,93 @@
+@page
+@using JWT.Algorithms
+@using JWT.Builder
+@using LionsBlog
+
+@{
+    /*
+        login.cshtml
+        Shows the login mask and logs in a user.
+    */
+}
+@{
+    Layout = "_Layout";
+    ViewData["footer"] = $"Login Page";
+}
+
+<center>
+<h2>ATTENTION</h2>
+This room is fullfilled mit special electronische equippment.<br>
+Fingergrabbing and pressing the cnoeppkes from the computers is<br>
+allowed for die experts only! So all the “lefthanders” stay away<br>
+and do not disturben the brainstorming von here working<br>
+intelligencies. Otherwise you will be out thrown and kicked<br>
+anderswhere! Also: please keep still and only watchen astaunished<br>
+the blinkenlights. <br>
+</center>
+<br>
+In other words, if you are not a writer for this blog, <a href="index">turn around</a>, nothing to do for you here.<br><br>
+
+@{
+    var users = new Users();
+    var ip = Request.HttpContext.Connection.RemoteIpAddress;
+    var ipstring = ip==null?"unknown":ip.ToString();
+
+    if(!String.IsNullOrEmpty(users.GetUsernameByTokenFromHttpRequest(Request)))
+    {
+        Response.Redirect("/index");
+        return;
+    }
+
+    if(!String.IsNullOrEmpty(Request.Cookies["lionsblog_token"]))
+    {
+        Response.Redirect("/logoff");
+        return;
+    }
+
+    if (HttpMethods.IsPost(Request.Method))
+    {
+        var username = Request.Form["username"];
+        var password = Request.Form["password"];
+        if(String.IsNullOrEmpty(username) || String.IsNullOrEmpty(password))
+            return;
+
+        if(users.PasswordIsOk(username,password))
+        {
+            var cookieKey = Guid.NewGuid().ToString();
+
+            users.AddOrUpdateCookie(username,cookieKey,ipstring);
+
+            var configuration = ConfigurationProvider.GetConfiguration();
+
+            var token = new JwtBuilder()
+                .WithAlgorithm(new HMACSHA512Algorithm())
+                .WithSecret(configuration.TokenSecret)
+                .AddClaim("cookieKey", cookieKey)
+                .Encode();
+
+            Response.HttpContext.Response.Cookies.Append(
+                "lionsblog_token",
+                token,
+                new CookieOptions
+                {
+                    Expires = DateTime.Now.AddDays(1)
+                }
+            );
+            Response.Redirect("/index");
+            return;
+        }
+        else
+        {
+            <text>
+                Password or Username wrong!
+            </text>
+        }
+    }
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    Username: <input type="text" name="username"><br>
+    Password: <input type="password" name="password"><br>
+    <input type="submit">
+</form>

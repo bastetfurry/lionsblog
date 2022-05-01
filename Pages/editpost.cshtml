@@ -1,0 +1,109 @@
+@page "{postid=0}"
+@using LionsBlog
+@{
+    /*
+        editpost.cshtml
+        Posting editor
+
+        postid: The posting to edit, or a new post if ommited or set to zero.
+    */
+}
+@{
+    Layout = "_Layout";
+}
+
+@{
+    UserStruct user;
+    PostStruct post = new PostStruct();
+    var username = "";
+    if(!String.IsNullOrEmpty(Request.Cookies["lionsblog_token"]))
+    {
+        var users = new Users();
+        username = users.GetUsernameByTokenFromHttpRequest(Request);
+        if(String.IsNullOrEmpty(username))
+        {
+            Response.Redirect("logoff");
+            return;
+        }
+        user = users.GetUser(username);
+        post.AuthorId = user.id;
+    }
+    else
+    {
+        Response.Redirect("index");
+        return;
+    }
+
+    var posts = new Posts();
+    if (HttpMethods.IsPost(Request.Method))
+    {
+        if( !int.TryParse(Request.Form["author"], out var postAuthorId) ||
+            !int.TryParse(Request.Form["postid"], out var postId))
+        {
+            Response.StatusCode = 400;
+            <h1>400 - Bad Request.</h1>
+            return;
+        }
+
+        post.Id = postId;
+        post.AuthorId = postAuthorId;
+        post.Topic = Request.Form["topic"];
+        post.Post = Request.Form["post"];
+        post.Tags = Request.Form["tags"];
+
+        post.IsActive = 0;
+        if(!String.IsNullOrEmpty(Request.Form["isactive"]) && Request.Form["isactive"] == "on")
+        {
+            post.IsActive = 1;
+        }
+
+        if(postId == 0 || (!String.IsNullOrEmpty(Request.Form["resetdate"]) && Request.Form["resetdate"] == "on"))
+        {
+            post.Published = DateTime.Now;
+        }
+        else
+        {
+            post.Published = DateTime.Parse(Request.Form["published"]);
+        }
+        post.LastEdit = DateTime.Now;
+
+        post = posts.AddOrEditPost(post);
+
+        Response.Redirect($"/editpost/{post.Id}");
+        return;
+    }
+    else
+    {
+        var postidstring = RouteData.Values["postid"].ToString();
+        if(!String.IsNullOrEmpty(postidstring) && int.TryParse(postidstring, out var postid) && postid > 0)
+        {
+            post = posts.GetSinglePost(postid);
+        }
+    }
+
+    var publishedIsChecked = post.IsActive>0?"checked=\"checked\"":"";
+    ViewData["footer"] = $"<a href=\"/logoff\">Logoff</a> - Logged in as {username} - <a href=\"/controlpanel\">CP</a> - <a href=\"/editpost\">New Post</a>";
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="author" value="@post.AuthorId">
+    <input type="hidden" name="postid" value="@post.Id">
+    <input type="hidden" name="published" value="@post.Published.ToString("o")">
+    Topic: <input type="text" name="topic" value="@post.Topic"><br>
+    Article:<br>
+    <textarea cols="80" rows="25" name="post">@post.Post</textarea><br>
+    Use <code>###BREAK###</code> to insert the break for the overview on the main page.<br>
+    Tags: <input type="text" name="tags" value="@post.Tags"><br>
+    Active: <input type="checkbox" name="isactive" @Html.Raw(publishedIsChecked)><br>
+    Reset Date: <input type="checkbox" name="resetdate"><br><br>
+    <input type="submit" value="Create or update post">
+@{
+    if(post.Id > 0)
+    {
+        <span>
+           - <a href="/show/@post.Id" target=”_blank”>[Show Current]</a> (Update before looking!)
+        </span>
+    }
+}
+</form>

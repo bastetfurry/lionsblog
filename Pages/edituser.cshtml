@@ -1,0 +1,78 @@
+@page "{userid=0}"
+@using LionsBlog
+@{
+    /*
+        edituser.cshtml
+        User editor
+
+        userid: The user to edit or create.
+    */
+}
+@{
+    Layout = "_Layout";
+}
+
+@{
+    var user = new UserStruct();
+    var users = new Users();
+    var username = "";
+    if(!String.IsNullOrEmpty(Request.Cookies["lionsblog_token"]))
+    {
+        username = users.GetUsernameByTokenFromHttpRequest(Request);
+        if(String.IsNullOrEmpty(username))
+        {
+            Response.Redirect("logoff");
+            return;
+        }
+    }
+    else
+    {
+        Response.Redirect("index");
+        return;
+    }
+
+    var posts = new Posts();
+    if (HttpMethods.IsPost(Request.Method))
+    {
+        if(!int.TryParse(Request.Form["id"],out var tId)) tId = 0;
+        user.id =  tId;
+        user.name = Request.Form["name"];
+        user.email = Request.Form["email"];
+        user.passwordhashed = Request.Form["passwordhashed"];
+        var newpassword = Request.Form["password"];
+        user.screenname = Request.Form["screenname"];
+        user.enabled = 0;
+        if(!String.IsNullOrEmpty(Request.Form["enabled"]) && Request.Form["enabled"] == "on")
+        {
+            user.enabled = 1;
+        }
+
+        user = users.AddOrEditUser(user,newpassword);
+
+        Response.Redirect($"/edituser/{user.id}");
+        return;
+    }
+    else
+    {
+        var useridstring = RouteData.Values["userid"].ToString();
+        if(!String.IsNullOrEmpty(useridstring) && int.TryParse(useridstring, out var userid) && userid > 0)
+        {
+            user = users.GetUser("",userid);
+        }
+    }
+
+    var enabledIsChecked = user.enabled==1?"checked=\"checked\"":"";
+    ViewData["footer"] = $"<a href=\"/logoff\">Logoff</a> - Logged in as {username} - <a href=\"/controlpanel\">CP</a> - <a href=\"/editpost\">New Post</a>";
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="passwordhashed" value="@user.passwordhashed">
+    <input type="hidden" name="id" value="@user.id">
+    Username: <input type="text" name="name" value="@user.name"><br>
+    eMail: <input type="text" name="email" value="@user.email"><br>
+    Password: <input type="password" name="password"><br>
+    Screenname: <input type="text" name="screenname" value="@user.screenname"><br>
+    Enabled: <input type="checkbox" name="enabled" @Html.Raw(enabledIsChecked)><br><br>
+    <input type="submit" value="Create or update user">
+</form>
