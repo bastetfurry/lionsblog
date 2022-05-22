@@ -4,7 +4,8 @@ body
 	color: white;
 	font-family: sans-serif;
 	margin: auto;
-	width: 50%;
+	width: 1000px;
+	max-width: 80%;
 }
 
 h1
@@ -27,6 +28,15 @@ a
 a:hover
 {
 	text-decoration: underline;
+}
+
+textarea
+{
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+
+    width: 100%;
 }
 
 div.center

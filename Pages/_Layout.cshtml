@@ -4,6 +4,7 @@
     <head>
         <title>LionsBlog</title>
         <link rel="stylesheet" href="/default.css"/>
+        @RenderSection("JavaScript", required: false)
     </head>
 
     <body>
@@ -11,7 +12,7 @@
         @RenderBody()
         <hr>
         <small>
-            The time on the server is @DateTime.Now -
+            The time on the server is @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") -
             @Html.Raw(@ViewData["footer"])
         </small>
     </body>

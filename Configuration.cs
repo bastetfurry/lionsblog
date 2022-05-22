@@ -11,6 +11,7 @@ public class Configuration
     public int PostsPerPage { get; set; }
     public string ImageDirectory { get; set; }
     public bool EnforceHTTPS { get; set; }
+    public bool EnableJSFeatures { get; set; }
 }
 
 public class ConfigurationProvider

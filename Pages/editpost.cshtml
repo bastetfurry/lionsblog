@@ -12,6 +12,13 @@
     Layout = "_Layout";
 }
 
+@if(ConfigurationProvider.GetConfiguration().EnableJSFeatures)
+{
+    @section JavaScript{
+        <script src="~/main.js" asp-append-version="true"></script>
+    }
+}
+
 @{
     UserStruct user;
     PostStruct post = new PostStruct();
@@ -92,7 +99,42 @@
     <input type="hidden" name="published" value="@post.Published.ToString("o")">
     Topic: <input type="text" name="topic" value="@post.Topic"><br>
     Article:<br>
-    <textarea cols="80" rows="25" name="post">@post.Post</textarea><br>
+    <textarea cols="80" rows="25" name="post" id="textareapost">@post.Post</textarea><br>
+    @if(ConfigurationProvider.GetConfiguration().EnableJSFeatures)
+    {
+        <span>Insert at cursor postition:<br>
+        <a href="#" onclick="addToArticle('<p></p>',-4)">Paragraph</a> -
+        <a href="#" onclick="addToArticle('<b></b>',-4)">Bold</a> -
+        <a href="#" onclick="addToArticle('<ul></ul>',-5)">Unordered List</a> -
+        <a href="#" onclick="addToArticle('<ol></ol>',-5)">Ordered List</a> -
+        <a href="#" onclick="addToArticle('<li></li>',-5)">List Element</a> -
+        <a href="#" onclick="addToArticle('<table></table>',-8)">Table</a> -
+        <a href="#" onclick="addToArticle('<tr></tr>',-5)">Table Row</a> -
+        <a href="#" onclick="addToArticle('<th></th>',-5)">Table Header</a> -
+        <a href="#" onclick="addToArticle('<td></td>',-5)">Table Collumn</a> -
+        <a href="#" onclick="addToArticle('<br>',0)">&lt;br&gt;</a><br>
+        <a href="#" onclick='addToArticle("<table>"+
+                                            "\n\t<tr>"+
+                                            "\n\t\t<th>Headline 1</th>"+
+                                            "\n\t\t<th>Headline 2</th>"+
+                                            "\n\t</tr>"+
+                                            "\n\t<tr>"+
+                                            "\n\t\t<td>1</td>"+
+                                            "\n\t\t<td>2</td>"+
+                                            "\n\t</tr>"+
+                                            "\n</table>",0)'>Table Template</a> -
+        <a href="#" onclick='addToArticle("<ul>"+
+                                            "\n\t<li>abc</li>"+
+                                            "\n\t<li>def</li>"+
+                                            "\n</ul>",0)'>Unordered List Template</a> -
+        <a href="#" onclick='addToArticle("<ol>"+
+                                            "\n\t<li>123</li>"+
+                                            "\n\t<li>456</li>"+
+                                            "\n</ol>",0)'>Ordered List Template</a> -
+        <a href="#" onclick="addToArticle('###BREAK###',0)">Breaker</a><br><br>
+        <a href="#" onclick="enableTab()">Enable Tab</a>
+        </span><br>
+    }
     Use <code>###BREAK###</code> to insert the break for the overview on the main page.<br>
     Tags: <input type="text" name="tags" value="@post.Tags"><br>
     Active: <input type="checkbox" name="isactive" @Html.Raw(publishedIsChecked)><br>
