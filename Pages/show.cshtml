@@ -65,7 +65,7 @@
 
 <h2><a href="/show/@post.Id">@post.Topic</a></h2>
 <small><center>by @post.Author on @post.Published.ToString("MMMM dd, yyyy")
-@Html.Raw(userIsLoggedIn?$"- <a href=\"/post/{post.Id}\">Edit</a>":"")
+@Html.Raw(userIsLoggedIn?$"- <a href=\"/editpost/{post.Id}\">Edit</a>":"")
 </center></small><br>
 @Html.Raw(cleanedpost)
 
