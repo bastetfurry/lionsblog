@@ -1,5 +1,5 @@
 namespace LionsBlog;
 public class CookieKeyStruct
 {
-    public string CookieKey { get; set; }
+    public string cookieKey { get; set; }
 }

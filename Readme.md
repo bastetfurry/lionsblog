@@ -29,6 +29,7 @@ This assumes that your installation uses systemd and Apache2, your desktop can c
 * Grab whats inside bin/Release/net6.0 and place somewhere you fancy that is reachable by a user that is not root.
 * Check appsettings.json for general settings and Properties/launchSettings.json for ports and such, you might want to at least change TokenSecret in the appsettings.json.
 * Do a test run if everything is in place, it should generate the images directory you specified and generate your database file. CTRL+C that when done.
+* Disable RecoverAdminUser, IE. set it to false, in the appsettings.json, reenable if you ever forgot your password and need to recover it.
 * Copy the kestrel-lionsblog.service file to /etc/systemd/system and edit it fitting to your configuration, you should need to touch WorkingDirectory, ExecStart and User.
 * To start the service, run as root: `systemctl restart kestrel-lionsblog.service`
 * Now we need to add this to Apache2 as a proxy service, copy 100-blog.conf to /etc/apache2/sites-available and edit the line ServerName accordingly.

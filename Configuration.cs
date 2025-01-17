@@ -12,6 +12,7 @@ public class Configuration
     public string ImageDirectory { get; set; }
     public bool EnforceHTTPS { get; set; }
     public bool EnableJSFeatures { get; set; }
+    public bool RecoverAdminUser { get; set; }
 }
 
 public class ConfigurationProvider

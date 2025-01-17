@@ -107,7 +107,7 @@ public class Users
             .MustVerifySignature()
             .Decode<CookieKeyStruct>(token);
 
-        return CheckCookie(cookieKeyContainer.CookieKey, ipstring);
+        return CheckCookie(cookieKeyContainer.cookieKey, ipstring);
     }
 
     public void AddOrUpdateCookie(string name, string cookieKey, string ip)
@@ -131,7 +131,7 @@ public class Users
                                             $ip
                                         );"
                         , connection);
-
+        
         cmd.Parameters.AddWithValue("$cookiekey", cookieKey);
         cmd.Parameters.AddWithValue("$name", name);
         cmd.Parameters.AddWithValue("$ip", ip);

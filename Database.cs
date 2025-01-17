@@ -14,10 +14,10 @@ public class Database
 
         var createTheTables = !File.Exists(Path.Combine(Directory.GetCurrentDirectory(), _configuration.DatabaseFilename));
         _connection = getConnection();
+        SetBehavior();
+
         if (createTheTables)
             createTables();
-
-        SetBehavior();
     }
 
     ~Database()
@@ -103,18 +103,28 @@ public class Database
             , connection
         );
         cmd.ExecuteNonQuery();
+    }
 
+    public void createAdminUser()
+    {
         var users = new Users();
-        var user = new UserStruct
-        {
-            id = 0,
-            name = _configuration.DefaultUser,
-            screenname = _configuration.DefaultScreenname,
-            email = _configuration.DefaultEMail,
-            enabled = 1,
-            passwordhashed = ""
-        };
 
-        users.AddOrEditUser(user, _configuration.DefaultPassword);
+        // Check if we are recovering or creating a new admin user
+        var user = users.GetUser(_configuration.DefaultUser);
+
+        if (user == null)
+        {
+            user = new UserStruct
+            {
+                id = 0,
+                name = _configuration.DefaultUser,
+                screenname = _configuration.DefaultScreenname,
+                email = _configuration.DefaultEMail,
+                enabled = 1,
+                passwordhashed = ""
+            };
+        }
+
+        users.AddOrEditUser(user, _configuration.DefaultPassword);        
     }
 }

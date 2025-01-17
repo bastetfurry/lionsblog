@@ -23,6 +23,12 @@ if(!System.IO.Directory.Exists(configuration.ImageDirectory))
 
 var database = new Database();
 
+if (configuration.RecoverAdminUser)
+{
+    logger.LogCritical("Admin recovery active! Remember to set RecoverAdminUser to false when done!");
+    database.createAdminUser();
+}
+
 #if DEBUG
     logger.LogWarning("Debug build, exception to browser active!");
     app.UseDeveloperExceptionPage();
