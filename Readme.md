@@ -26,7 +26,7 @@ Written using just VSCode on a little Debian box with love.
 This assumes that your installation uses systemd and Apache2, your desktop can compile Dotnet and that you have at least a general idea of managing a Linux server.
 * Check out on your desktop.
 * Run `dotnet publish --configuration Release` from the root of the project directory.
-* Grab whats inside bin/Release/net6.0 and place somewhere you fancy that is reachable by a user that is not root.
+* Grab whats inside bin/Release/net9.0 and place somewhere you fancy that is reachable by a user that is not root.
 * Check appsettings.json for general settings and Properties/launchSettings.json for ports and such, you might want to at least change TokenSecret in the appsettings.json.
 * Do a test run if everything is in place, it should generate the images directory you specified and generate your database file. CTRL+C that when done.
 * Disable RecoverAdminUser, IE. set it to false, in the appsettings.json, reenable if you ever forgot your password and need to recover it.
